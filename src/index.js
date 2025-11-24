@@ -1,68 +1,8 @@
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
 const os = require('os');
 const config = require('./config');
 const dbManager = require('./models/database');
-const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
-const { apiRateLimiter } = require('./middleware/rateLimiter');
-const requestLogger = require('./middleware/requestLogger');
 const Logger = require('./utils/logger');
-
-const app = express();
-
-// Initialize database (async)
-let dbInitialized = false;
-
-(async () => {
-  try {
-    await dbManager.initialize();
-    dbInitialized = true;
-    Logger.info('Database initialized successfully');
-  } catch (error) {
-    Logger.error('Failed to initialize database', error);
-    console.error('Failed to initialize database:', error);
-    process.exit(1);
-  }
-})();
-
-// Trust proxy - important for rate limiting behind reverse proxy
-app.set('trust proxy', 1);
-
-// Middleware
-app.use(cors());
-app.use(express.json({ limit: '10mb' })); // Add size limit to prevent large payloads
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
-// Request logging (only in development to avoid too much noise)
-if (config.server.env === 'development') {
-  app.use(requestLogger);
-}
-
-// Apply general rate limiting to all API routes
-app.use('/api/', apiRateLimiter);
-
-// Serve static files for admin interface
-app.use('/admin', express.static(path.join(__dirname, '../public/admin'), {
-  index: 'index.html'
-}));
-
-// Health check endpoint (no rate limiting)
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
-
-// Routes
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/student', require('./routes/student'));
-app.use('/api/admin', require('./routes/admin'));
-app.use('/api/parent', require('./routes/parent'));
-
-// 404 handler - must be after all routes
-app.use(notFoundHandler);
-
-// Centralized error handling middleware - must be last
-app.use(errorHandler);
+const app = require('./app');
 
 // Helper function to get LAN IP addresses
 function getLANAddresses() {
