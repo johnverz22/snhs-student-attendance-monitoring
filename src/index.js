@@ -43,7 +43,9 @@ if (config.server.env === 'development') {
 app.use('/api/', apiRateLimiter);
 
 // Serve static files for admin interface
-app.use('/admin', express.static(path.join(__dirname, '../public/admin')));
+app.use('/admin', express.static(path.join(__dirname, '../public/admin'), {
+  index: 'index.html'
+}));
 
 // Health check endpoint (no rate limiting)
 app.get('/health', (req, res) => {

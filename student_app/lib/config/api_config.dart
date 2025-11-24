@@ -37,8 +37,10 @@ class ApiConfig {
   ///
   /// See NETWORK_TROUBLESHOOTING.md for detailed help
   // static const String baseUrl = 'http://10.0.2.2:3000/api'; // Android Emulator
+  // static const String baseUrl =
+  //     'http://192.168.100.83:3000/api'; // Physical Device
   static const String baseUrl =
-      'http://192.168.100.83:3000/api'; // Physical Device
+      'https://snhs-student-attendance-monitoring.vercel.app';
 
   // API Endpoints
   static const String authLogin = '$baseUrl/auth/student/login';

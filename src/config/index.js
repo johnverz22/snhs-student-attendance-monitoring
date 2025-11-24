@@ -6,12 +6,13 @@ module.exports = {
     env: process.env.NODE_ENV || 'development',
   },
   database: {
-    host: process.env.DB_HOST || 'localhost',
+    // Support both Vercel Postgres and custom PostgreSQL
+    host: process.env.POSTGRES_HOST || process.env.DB_HOST || 'localhost',
     port: parseInt(process.env.DB_PORT) || 5432,
-    database: process.env.DB_NAME || 'school_attendance',
-    user: process.env.DB_USER || 'school_admin',
-    password: process.env.DB_PASSWORD || 'school_password_123',
-    ssl: process.env.DB_SSL === 'true',
+    database: process.env.POSTGRES_DATABASE || process.env.DB_NAME || 'school_attendance',
+    user: process.env.POSTGRES_USER || process.env.DB_USER || 'school_admin',
+    password: process.env.POSTGRES_PASSWORD || process.env.DB_PASSWORD || 'school_password_123',
+    ssl: process.env.DB_SSL === 'true' || process.env.NODE_ENV === 'production',
   },
   jwt: {
     secret: process.env.JWT_SECRET || 'default-secret-key',

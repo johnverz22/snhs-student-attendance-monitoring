@@ -8,9 +8,11 @@ class ApiConfig {
   // For local development on physical device, use your computer's IP address
   // For Android emulator, use 10.0.2.2
   // For iOS simulator, use localhost or 127.0.0.1
-  static const String baseUrl = 'http://10.0.2.2:3000/api'; // Android Emulator
+  // static const String baseUrl = 'http://10.0.2.2:3000/api'; // Android Emulator
   // static const String baseUrl =
   //     'http://192.168.100.83:3000/api'; // Physical Device
+  static const String baseUrl =
+      'https://snhs-student-attendance-monitoring.vercel.app';
 
   // Authentication endpoints
   static const String parentRegister = '/auth/parent/register';
