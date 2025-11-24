@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - School Attendance System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .suggestion-item {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .suggestion-item:hover {
+            background-color: #f3f4f6;
+        }
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+        .suggestion-meta {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-left: 8px;
+        }
+        .report-summary {
+            background-color: #f9fafb;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            border: 1px solid #e5e7eb;
+        }
+        .report-summary p {
+            margin: 4px 0;
+            color: #374151;
+        }
+        .table-responsive {
+            overflow-x: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+        }
+        .data-table th {
+            background-color: #f9fafb;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #374151;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .data-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f3f4f6;
+            color: #374151;
+        }
+        .data-table tr:hover {
+            background-color: #f9fafb;
+        }
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .status-success {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+        .status-error {
+            background-color: #fecaca;
+            color: #dc2626;
+        }
+        .no-results {
+            text-align: center;
+            color: #6b7280;
+            padding: 32px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Mobile sidebar overlay -->
+        <div id="sidebarOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden hidden"></div>
+        
+        <!-- Sidebar -->
+        <aside id="sidebar" class="fixed md:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out md:block">
+            <div class="h-full flex flex-col">
+                <!-- Logo -->
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex flex-col space-y-2">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                                </svg>
+                            </div>
+                            <span class="text-xl font-bold text-gray-800">Admin Panel</span>
+                        </div>
+                        <p class="text-xs text-gray-600 font-medium">Sto. Rosario National High School</p>
+                    </div>
+                </div>
+                
+                <!-- Navigation -->
+                <nav class="flex-1 p-4 space-y-1">
+                    <a href="dashboard.html" class="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                        </svg>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="students.html" class="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                        <span>Students</span>
+                    </a>
+                    <a href="logs.html" class="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        <span>Attendance Logs</span>
+                    </a>
+                    <a href="reports.html" class="flex items-center space-x-3 px-4 py-3 text-blue-600 bg-blue-50 rounded-lg font-medium">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                        <span>Reports</span>
+                    </a>
+                    <a href="settings.html" class="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        <span>Settings</span>
+                    </a>
+                </nav>
+                
+                <!-- Logout -->
+                <div class="p-4 border-t border-gray-200">
+                    <button id="logoutBtn" class="flex items-center space-x-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg transition w-full">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                        </svg>
+                        <span>Logout</span>
+                    </button>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto">
+            <!-- Header -->
+            <header class="bg-white border-b border-gray-200 px-6 py-4">
+                <div class="flex items-center space-x-4">
+                    <!-- Mobile menu button -->
+                    <button id="mobileMenuBtn" class="md:hidden p-2 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                    <h1 class="text-2xl font-bold text-gray-800">Reports</h1>
+                </div>
+            </header>
+            
+            <!-- Reports Content -->
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <!-- Daily Report Card -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <h2 class="text-lg font-semibold text-gray-800">Daily Report</h2>
+                            <p class="text-sm text-gray-600 mt-1">Generate attendance report for a specific day</p>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <div>
+                                <label for="dailyDate" class="block text-sm font-medium text-gray-700 mb-2">Select Date</label>
+                                <input 
+                                    type="date" 
+                                    id="dailyDate" 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                >
+                            </div>
+                            <div class="flex space-x-3">
+                                <button id="viewDailyBtn" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition">View Report</button>
+                                <button id="downloadDailyBtn" class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition">Download CSV</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Weekly Report Card -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <h2 class="text-lg font-semibold text-gray-800">Weekly Report</h2>
+                            <p class="text-sm text-gray-600 mt-1">Generate attendance report for a week</p>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <div>
+                                <label for="weeklyStartDate" class="block text-sm font-medium text-gray-700 mb-2">Week Starting</label>
+                                <input 
+                                    type="date" 
+                                    id="weeklyStartDate" 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                >
+                            </div>
+                            <div class="flex space-x-3">
+                                <button id="viewWeeklyBtn" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition">View Report</button>
+                                <button id="downloadWeeklyBtn" class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition">Download CSV</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Monthly Report Card -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <h2 class="text-lg font-semibold text-gray-800">Monthly Report</h2>
+                            <p class="text-sm text-gray-600 mt-1">Generate attendance report for a month</p>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <div>
+                                <label for="monthlyDate" class="block text-sm font-medium text-gray-700 mb-2">Select Month</label>
+                                <input 
+                                    type="month" 
+                                    id="monthlyDate" 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                >
+                            </div>
+                            <div class="flex space-x-3">
+                                <button id="viewMonthlyBtn" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition">View Report</button>
+                                <button id="downloadMonthlyBtn" class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition">Download CSV</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Student Report Card -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <h2 class="text-lg font-semibold text-gray-800">Student Report</h2>
+                            <p class="text-sm text-gray-600 mt-1">Generate attendance report for a specific student</p>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <div class="relative">
+                                <label for="studentSearch" class="block text-sm font-medium text-gray-700 mb-2">Search Student</label>
+                                <input 
+                                    type="text" 
+                                    id="studentSearch" 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    placeholder="Enter student name or ID..."
+                                >
+                                <div id="studentSuggestions" class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-60 overflow-y-auto"></div>
+                            </div>
+                            <input type="hidden" id="selectedStudentId">
+                            <div class="flex space-x-3">
+                                <button id="viewStudentBtn" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition disabled:opacity-50 disabled:cursor-not-allowed" disabled>View Report</button>
+                                <button id="downloadStudentBtn" class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition disabled:opacity-50 disabled:cursor-not-allowed" disabled>Download CSV</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Report Results -->
+                <div id="reportResults" class="hidden bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                        <h2 id="reportTitle" class="text-lg font-semibold text-gray-800">Report Results</h2>
+                        <button id="closeReportBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition text-sm">Close</button>
+                    </div>
+                    <div class="p-6">
+                        <div id="reportLoader" class="hidden text-center py-8">
+                            <svg class="animate-spin h-8 w-8 text-blue-600 mx-auto" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <p class="text-gray-600 mt-2">Generating report...</p>
+                        </div>
+                        <div id="reportContent"></div>
+                        <div id="reportError" class="hidden bg-red-50 border-l-4 border-red-500 p-4 rounded">
+                            <p class="text-sm text-red-700"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/mobile-menu.js"></script>
+    <script src="js/reports.js"></script>
+</body>
+</html>

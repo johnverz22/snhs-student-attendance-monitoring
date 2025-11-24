@@ -1,0 +1,33 @@
+================================================================================
+  STUDENT APP - API CONFIGURATION QUICK REFERENCE
+================================================================================
+
+📍 Configuration File: student_app/lib/config/api_config.dart
+
+🔧 To change the API URL:
+   1. Open: lib/config/api_config.dart
+   2. Find line ~30: static const String baseUrl = '...'
+   3. Update the URL
+   4. Run: flutter clean && flutter run
+
+📱 Common Configurations:
+
+   Physical Android/iOS Phone (same WiFi):
+   static const String baseUrl = 'http://192.168.100.83:3000/api';
+   ⚠️  Use your actual LAN IP! Run: npm run network
+
+   Android Emulator ONLY:
+   static const String baseUrl = 'http://10.0.2.2:3000/api';
+   ⚠️  10.0.2.2 does NOT work on physical phones!
+
+   iOS Simulator:
+   static const String baseUrl = 'http://localhost:3000/api';
+
+   Production:
+   static const String baseUrl = 'https://your-domain.com/api';
+
+⚠️  IMPORTANT: 10.0.2.2 is ONLY for Android emulators, NOT physical phones!
+
+📖 Full Documentation: student_app/DEPLOYMENT_CONFIG.md
+
+================================================================================

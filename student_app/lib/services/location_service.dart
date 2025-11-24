@@ -1,0 +1,94 @@
+import 'dart:async';
+import 'package:geolocator/geolocator.dart';
+
+/// Service for handling GPS location functionality
+class LocationService {
+  /// Check if location services are enabled
+  Future<bool> isLocationServiceEnabled() async {
+    return await Geolocator.isLocationServiceEnabled();
+  }
+
+  /// Check and request location permissions
+  Future<LocationPermission> checkPermission() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+
+    return permission;
+  }
+
+  /// Get current GPS coordinates
+  /// Throws exceptions if location services are disabled or permission is denied
+  Future<Position> getCurrentLocation() async {
+    try {
+      // Check if location services are enabled
+      bool serviceEnabled = await isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        throw LocationServiceDisabledException();
+      }
+
+      // Check permissions
+      LocationPermission permission = await checkPermission();
+
+      if (permission == LocationPermission.denied) {
+        throw PermissionDeniedException('Location permission denied');
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        throw PermissionDeniedException(
+          'Location permissions are permanently denied. Please enable them in settings.',
+        );
+      }
+
+      // Get current position
+      Position position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          distanceFilter: 0,
+        ),
+      );
+
+      return position;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Get current location with timeout
+  Future<Position> getCurrentLocationWithTimeout({
+    Duration timeout = const Duration(seconds: 10),
+  }) async {
+    try {
+      return await getCurrentLocation().timeout(
+        timeout,
+        onTimeout: () {
+          throw LocationTimeoutException('Location request timed out');
+        },
+      );
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Open location settings
+  Future<bool> openLocationSettings() async {
+    return await Geolocator.openLocationSettings();
+  }
+
+  /// Open app settings
+  Future<bool> openAppSettings() async {
+    return await Geolocator.openAppSettings();
+  }
+}
+
+/// Exception thrown when location request times out
+class LocationTimeoutException implements Exception {
+  final String message;
+
+  LocationTimeoutException([this.message = 'Request timed out']);
+
+  @override
+  String toString() => message;
+}

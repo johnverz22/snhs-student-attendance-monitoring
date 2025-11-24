@@ -1,0 +1,15 @@
+node_modules
+data/*.db
+data/backups
+.env
+.env.local
+firebase-service-account.json
+*.log
+.DS_Store
+parent_app
+student_app
+read-mes
+tests
+src/scripts
+*.md
+read-mes
