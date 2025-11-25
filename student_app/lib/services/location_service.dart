@@ -42,11 +42,27 @@ class LocationService {
         );
       }
 
-      // Get current position
+      // Try to get last known position first (faster)
+      Position? lastPosition;
+      try {
+        lastPosition = await Geolocator.getLastKnownPosition();
+        // If last position is recent (within 5 minutes), use it
+        if (lastPosition != null) {
+          final age = DateTime.now().difference(lastPosition.timestamp);
+          if (age.inMinutes < 5) {
+            return lastPosition;
+          }
+        }
+      } catch (e) {
+        // Ignore errors getting last position, will get current position
+      }
+
+      // Get current position with medium accuracy for faster response
       Position position = await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
+          accuracy: LocationAccuracy.medium,
           distanceFilter: 0,
+          timeLimit: Duration(seconds: 15),
         ),
       );
 
@@ -58,13 +74,15 @@ class LocationService {
 
   /// Get current location with timeout
   Future<Position> getCurrentLocationWithTimeout({
-    Duration timeout = const Duration(seconds: 10),
+    Duration timeout = const Duration(seconds: 20),
   }) async {
     try {
       return await getCurrentLocation().timeout(
         timeout,
         onTimeout: () {
-          throw LocationTimeoutException('Location request timed out');
+          throw LocationTimeoutException(
+            'Location request timed out. Please ensure GPS is enabled and you have a clear view of the sky.',
+          );
         },
       );
     } catch (e) {

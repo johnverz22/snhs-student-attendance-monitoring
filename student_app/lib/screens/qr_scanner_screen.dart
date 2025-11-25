@@ -206,7 +206,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
       Position position;
       try {
         position = await _locationService.getCurrentLocationWithTimeout(
-          timeout: const Duration(seconds: 10),
+          timeout: const Duration(seconds: 20),
         );
       } catch (e) {
         if (mounted) {
@@ -214,7 +214,8 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
           _showErrorDialog(
             'Location Error',
             _getLocationErrorMessage(e),
-            showSettingsButton: true,
+            showSettingsButton: e is! LocationTimeoutException,
+            showRetryButton: true,
           );
         }
         return;
@@ -262,9 +263,9 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
     } else if (error is PermissionDeniedException) {
       return error.message ?? 'Location permission denied';
     } else if (error is LocationTimeoutException) {
-      return 'Location request timed out. Please try again.';
+      return 'Location request timed out. Try moving to an area with better GPS signal (near a window or outdoors) and scan again.';
     } else {
-      return 'Unable to get your location. Please check your settings.';
+      return 'Unable to get your location. Please check your settings and try again.';
     }
   }
 
@@ -365,6 +366,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
     String title,
     String message, {
     bool showSettingsButton = false,
+    bool showRetryButton = false,
   }) {
     // Show error snackbar
     ScaffoldMessenger.of(context).showSnackBar(
@@ -400,10 +402,18 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
         duration: const Duration(seconds: 5),
         behavior: SnackBarBehavior.floating,
         action: SnackBarAction(
-          label: 'Details',
+          label: showRetryButton ? 'Retry' : 'Details',
           textColor: Colors.white,
           onPressed: () {
-            _showErrorDetailsDialog(title, message, showSettingsButton);
+            if (showRetryButton) {
+              // Retry scanning
+              setState(() {
+                _hasScanned = false;
+              });
+              _scannerService.startScanning();
+            } else {
+              _showErrorDetailsDialog(title, message, showSettingsButton);
+            }
           },
         ),
       ),

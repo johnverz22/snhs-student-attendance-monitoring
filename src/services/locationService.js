@@ -124,47 +124,72 @@ class LocationService {
         throw new Error('Radius must be greater than 0');
       }
 
-      // Build update query dynamically based on provided fields
-      const fields = [];
+// FIXED VERSION - Replace lines 111-177 in src/services/locationService.js
+
+  /**
+   * Update school configuration
+   * @param {Object} configData - New configuration data
+   * @returns {Object} Updated configuration
+   */
+  async updateSchoolConfig(configData) {
+    try {
+            
+      // Validate input
+      if (configData.latitude !== undefined && (configData.latitude < -90 || configData.latitude > 90)) {
+        throw new Error('Latitude must be between -90 and 90');
+      }
+      
+      if (configData.longitude !== undefined && (configData.longitude < -180 || configData.longitude > 180)) {
+        throw new Error('Longitude must be between -180 and 180');
+      }
+      
+      if (configData.radius_meters !== undefined && configData.radius_meters <= 0) {
+        throw new Error('Radius must be greater than 0');
+      }
+
+      // Build update query dynamically with PostgreSQL placeholders
+      const updateFields = [];
       const values = [];
+      let paramIndex = 1;
       
       if (configData.school_name !== undefined) {
-        fields.push('school_name = ?');
+        updateFields.push(`school_name = $${paramIndex++}`);
         values.push(configData.school_name);
       }
       
       if (configData.latitude !== undefined) {
-        fields.push('latitude = ?');
+        updateFields.push(`latitude = $${paramIndex++}`);
         values.push(configData.latitude);
       }
       
       if (configData.longitude !== undefined) {
-        fields.push('longitude = ?');
+        updateFields.push(`longitude = $${paramIndex++}`);
         values.push(configData.longitude);
       }
       
       if (configData.radius_meters !== undefined) {
-        fields.push('radius_meters = ?');
+        updateFields.push(`radius_meters = $${paramIndex++}`);
         values.push(configData.radius_meters);
       }
       
       if (configData.timezone !== undefined) {
-        fields.push('timezone = ?');
+        updateFields.push(`timezone = $${paramIndex++}`);
         values.push(configData.timezone);
       }
 
-      if (fields.length === 0) {
+      if (updateFields.length === 0) {
         throw new Error('No valid fields to update');
       }
 
-      // Add updated_at timestamp
-      fields.push('updated_at = CURRENT_TIMESTAMP');
+      // Add updated_at timestamp (no parameter needed)
+      updateFields.push('updated_at = CURRENT_TIMESTAMP');
       
-      // Build query with PostgreSQL placeholders
-      const placeholders = fields.map((_, i) => `$${i + 1}`);
-      values.push(1); // id = 1 (last parameter)
+      // Add id parameter for WHERE clause
+      values.push(1); // id = 1
+      const query = `UPDATE school_config SET ${updateFields.join(', ')} WHERE id = $${paramIndex}`;
       
-      const query = `UPDATE school_config SET ${fields.map((f, i) => f.replace('?', `$${i + 1}`)).join(', ')} WHERE id = $${fields.length + 1}`;
+      console.log('Executing query:', query);
+      console.log('With values:', values);
       
       await execute(query, values);
 
