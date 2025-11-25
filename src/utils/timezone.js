@@ -4,11 +4,10 @@
 
 /**
  * Get the configured timezone from school config
- * @returns {string} Timezone string (e.g., 'Asia/Manila', 'UTC+8')
+ * @returns {Promise<string>} Timezone string (e.g., 'Asia/Manila', 'UTC+8')
  */
-function getConfiguredTimezone() {
-  const dbManager = require('../models/database');
-const { queryOne, queryAll, execute, transaction } = require('../utils/dbHelpers');
+async function getConfiguredTimezone() {
+  const { queryOne } = require('../utils/dbHelpers');
     
   const config = await queryOne('SELECT timezone FROM school_config WHERE id = 1', []);
   return config?.timezone || 'UTC';
@@ -43,11 +42,11 @@ function getTimezoneOffset(timezone) {
 
 /**
  * Get current timestamp in the configured timezone
- * Returns ISO 8601 format string that SQLite can store
- * @returns {string} Timestamp in configured timezone (YYYY-MM-DD HH:MM:SS)
+ * Returns ISO 8601 format string that PostgreSQL can store
+ * @returns {Promise<string>} Timestamp in configured timezone (ISO 8601)
  */
-function getCurrentTimestamp() {
-  const timezone = getConfiguredTimezone();
+async function getCurrentTimestamp() {
+  const timezone = await getConfiguredTimezone();
   const offsetHours = getTimezoneOffset(timezone);
   
   // Get current UTC time
@@ -56,19 +55,19 @@ function getCurrentTimestamp() {
   // Add timezone offset
   const localTime = new Date(now.getTime() + (offsetHours * 60 * 60 * 1000));
   
-  // Format as SQLite datetime: YYYY-MM-DD HH:MM:SS
-  return localTime.toISOString().slice(0, 19).replace('T', ' ');
+  // Return ISO 8601 format for PostgreSQL
+  return localTime.toISOString();
 }
 
 /**
  * Convert UTC timestamp from database to configured timezone
  * @param {string} utcTimestamp - UTC timestamp from database
- * @returns {string} Timestamp in configured timezone
+ * @returns {Promise<string>} Timestamp in configured timezone
  */
-function convertToLocalTime(utcTimestamp) {
+async function convertToLocalTime(utcTimestamp) {
   if (!utcTimestamp) return null;
   
-  const timezone = getConfiguredTimezone();
+  const timezone = await getConfiguredTimezone();
   const offsetHours = getTimezoneOffset(timezone);
   
   // Parse the UTC timestamp
@@ -77,19 +76,19 @@ function convertToLocalTime(utcTimestamp) {
   // Add timezone offset
   const localDate = new Date(utcDate.getTime() + (offsetHours * 60 * 60 * 1000));
   
-  // Format as SQLite datetime: YYYY-MM-DD HH:MM:SS
-  return localDate.toISOString().slice(0, 19).replace('T', ' ');
+  // Return ISO 8601 format
+  return localDate.toISOString();
 }
 
 /**
  * Convert local timestamp to UTC for database storage
  * @param {string} localTimestamp - Timestamp in configured timezone
- * @returns {string} UTC timestamp for database
+ * @returns {Promise<string>} UTC timestamp for database
  */
-function convertToUTC(localTimestamp) {
+async function convertToUTC(localTimestamp) {
   if (!localTimestamp) return null;
   
-  const timezone = getConfiguredTimezone();
+  const timezone = await getConfiguredTimezone();
   const offsetHours = getTimezoneOffset(timezone);
   
   // Parse the local timestamp (without timezone indicator)
@@ -98,8 +97,8 @@ function convertToUTC(localTimestamp) {
   // Subtract timezone offset to get UTC
   const utcDate = new Date(localDate.getTime() - (offsetHours * 60 * 60 * 1000));
   
-  // Format as SQLite datetime: YYYY-MM-DD HH:MM:SS
-  return utcDate.toISOString().slice(0, 19).replace('T', ' ');
+  // Return ISO 8601 format
+  return utcDate.toISOString();
 }
 
 /**

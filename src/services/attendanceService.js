@@ -317,7 +317,7 @@ class AttendanceService {
       }
 
       // Step 4: Log attendance with configured timezone
-      const currentTime = getCurrentTimestamp();
+      const currentTime = await getCurrentTimestamp();
       const result = await execute(`
         INSERT INTO attendance_logs (student_id, qr_code_id, latitude, longitude, location_valid, entry_time)
         VALUES ($1, $2, $3, $4, TRUE, $5)
@@ -381,7 +381,7 @@ class AttendanceService {
     
     try {
       // Get current time in configured timezone
-      const currentTime = getCurrentTimestamp();
+      const currentTime = await getCurrentTimestamp();
       
       // Calculate threshold time (current time - X minutes)
       const thresholdDate = new Date(currentTime);

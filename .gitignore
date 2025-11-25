@@ -34,3 +34,4 @@ coverage/
 # Build
 dist/
 build/
+INSERT_ADMIN.sql
