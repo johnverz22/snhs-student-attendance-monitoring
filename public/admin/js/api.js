@@ -22,6 +22,16 @@ const API = (() => {
     
     try {
       const response = await fetch(`${BASE_URL}${endpoint}`, config);
+      
+      // Check content type before parsing
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        // Server returned HTML or other non-JSON content
+        const text = await response.text();
+        console.error('Non-JSON response:', text.substring(0, 200));
+        throw new Error('Server returned an invalid response. Please check if the API is working correctly.');
+      }
+      
       const data = await response.json();
       
       // Handle unauthorized responses (but not for login endpoint)
@@ -40,6 +50,10 @@ const API = (() => {
       return data;
     } catch (error) {
       console.error('API request failed:', error);
+      // Re-throw with more context if it's a JSON parse error
+      if (error instanceof SyntaxError) {
+        throw new Error('Server returned an invalid response. Please try again or contact support.');
+      }
       throw error;
     }
   }

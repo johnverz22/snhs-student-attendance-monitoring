@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/student.dart';
@@ -51,19 +53,59 @@ class AuthService {
         );
       } else {
         print('❌ Login failed: ${data['message']}');
+
+        // Provide user-friendly error messages based on error code
+        String userMessage = data['message'] ?? 'Login failed';
+        final errorCode = data['error'] ?? 'LOGIN_FAILED';
+
+        if (errorCode == 'AUTH_INVALID_CREDENTIALS') {
+          userMessage = 'Invalid email or password. Please try again.';
+        } else if (errorCode == 'ACCOUNT_ARCHIVED') {
+          userMessage =
+              'Your account has been archived. Please contact the school administrator.';
+        } else if (errorCode == 'VALIDATION_ERROR') {
+          userMessage = 'Please enter a valid email and password.';
+        } else if (response.statusCode == 429) {
+          userMessage = 'Too many login attempts. Please try again later.';
+        } else if (response.statusCode >= 500) {
+          userMessage = 'Server error. Please try again later.';
+        }
+
         return AuthResponse(
           success: false,
-          error: data['error'] ?? 'LOGIN_FAILED',
-          message:
-              data['message'] ?? 'Login failed. Please check your credentials.',
+          error: errorCode,
+          message: userMessage,
         );
       }
+    } on TimeoutException {
+      print('🚨 Login timeout');
+      return AuthResponse(
+        success: false,
+        error: 'TIMEOUT',
+        message:
+            'Connection timeout. Please check your internet connection and try again.',
+      );
+    } on SocketException {
+      print('🚨 No internet connection');
+      return AuthResponse(
+        success: false,
+        error: 'NO_INTERNET',
+        message: 'No internet connection. Please check your network settings.',
+      );
+    } on FormatException {
+      print('🚨 Invalid response format');
+      return AuthResponse(
+        success: false,
+        error: 'INVALID_RESPONSE',
+        message: 'Invalid server response. Please try again later.',
+      );
     } catch (e) {
       print('🚨 Login error: $e');
       return AuthResponse(
         success: false,
         error: 'NETWORK_ERROR',
-        message: 'Network error: ${e.toString()}',
+        message:
+            'Unable to connect to server. Please check your internet connection.',
       );
     }
   }
@@ -126,18 +168,63 @@ class AuthService {
         );
       } else {
         print('❌ Registration failed: ${data['message']}');
+
+        // Provide user-friendly error messages based on error code
+        String userMessage = data['message'] ?? 'Registration failed';
+        final errorCode = data['error'] ?? 'REGISTRATION_FAILED';
+
+        if (errorCode == 'VALIDATION_DUPLICATE') {
+          if (userMessage.contains('Student ID')) {
+            userMessage =
+                'This Student ID is already registered. Please use a different ID or login instead.';
+          } else if (userMessage.contains('Email')) {
+            userMessage =
+                'This email is already registered. Please use a different email or login instead.';
+          }
+        } else if (errorCode == 'VALIDATION_ERROR') {
+          userMessage = 'Please check your information and try again.';
+        } else if (response.statusCode == 429) {
+          userMessage =
+              'Too many registration attempts. Please try again later.';
+        } else if (response.statusCode >= 500) {
+          userMessage = 'Server error. Please try again later.';
+        }
+
         return AuthResponse(
           success: false,
-          error: data['error'] ?? 'REGISTRATION_FAILED',
-          message: data['message'] ?? 'Registration failed. Please try again.',
+          error: errorCode,
+          message: userMessage,
         );
       }
+    } on TimeoutException {
+      print('🚨 Registration timeout');
+      return AuthResponse(
+        success: false,
+        error: 'TIMEOUT',
+        message:
+            'Connection timeout. Please check your internet connection and try again.',
+      );
+    } on SocketException {
+      print('🚨 No internet connection');
+      return AuthResponse(
+        success: false,
+        error: 'NO_INTERNET',
+        message: 'No internet connection. Please check your network settings.',
+      );
+    } on FormatException {
+      print('🚨 Invalid response format');
+      return AuthResponse(
+        success: false,
+        error: 'INVALID_RESPONSE',
+        message: 'Invalid server response. Please try again later.',
+      );
     } catch (e) {
       print('🚨 Registration error: $e');
       return AuthResponse(
         success: false,
         error: 'NETWORK_ERROR',
-        message: 'Network error: ${e.toString()}',
+        message:
+            'Unable to connect to server. Please check your internet connection.',
       );
     }
   }
