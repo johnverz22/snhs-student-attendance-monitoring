@@ -101,9 +101,9 @@ class NotificationService {
       // Insert new token
       const result = await execute(`
         INSERT INTO push_tokens (parent_id, device_token, platform, is_active)
-        VALUES ($1, $2, $3, TRUE)
+        VALUES ($1, $2, $3, $4)
         RETURNING id
-      `, [parentId, deviceToken, platform]);
+      `, [parentId, deviceToken, platform, true]);
 
       console.log(`[${new Date().toISOString()}] Registered push token for parent ${parentId}, platform ${platform}`);
 
