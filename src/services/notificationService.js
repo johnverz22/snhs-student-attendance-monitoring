@@ -84,9 +84,9 @@ class NotificationService {
         if (!existing.is_active) {
           await execute(`
             UPDATE push_tokens
-            SET is_active = TRUE, updated_at = CURRENT_TIMESTAMP
-            WHERE id = $1
-          `, [existing.id]);
+            SET is_active = $1::boolean, updated_at = CURRENT_TIMESTAMP
+            WHERE id = $2
+          `, [true, existing.id]);
 
           console.log(`[${new Date().toISOString()}] Reactivated push token for parent ${parentId}`);
         }
@@ -101,9 +101,9 @@ class NotificationService {
       // Insert new token
       const result = await execute(`
         INSERT INTO push_tokens (parent_id, device_token, platform, is_active)
-        VALUES ($1, $2, $3, TRUE)
+        VALUES ($1, $2, $3, true)
         RETURNING id
-      `, [parentId, deviceToken, platform]);
+      `, [parentId, deviceToken, platform, true]);
 
       console.log(`[${new Date().toISOString()}] Registered push token for parent ${parentId}, platform ${platform}`);
 
@@ -129,9 +129,9 @@ class NotificationService {
       
       const result = await execute(`
         UPDATE push_tokens
-        SET is_active = FALSE, updated_at = CURRENT_TIMESTAMP
-        WHERE parent_id = $1 AND device_token = $2
-      `, [parentId, deviceToken]);
+        SET is_active = $1::boolean, updated_at = CURRENT_TIMESTAMP
+        WHERE parent_id = $2 AND device_token = $3
+      `, [false, parentId, deviceToken]);
 
       if (result.changes === 0) {
         return {
