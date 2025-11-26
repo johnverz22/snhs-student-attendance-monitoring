@@ -4,6 +4,48 @@
 
 let studentSearchTimeout = null;
 
+/**
+ * Format time from backend (already in Philippine time)
+ */
+function formatPhilippineTime(isoString, includeSeconds = true) {
+  try {
+    const date = new Date(isoString);
+    if (isNaN(date.getTime())) return 'Invalid Time';
+    
+    const hours = date.getUTCHours();
+    const minutes = date.getUTCMinutes();
+    const seconds = date.getUTCSeconds();
+    
+    const hour12 = hours % 12 || 12;
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    
+    if (includeSeconds) {
+      return `${hour12.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')} ${ampm}`;
+    }
+    return `${hour12.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+  } catch (e) {
+    return 'Invalid Time';
+  }
+}
+
+function formatPhilippineDate(isoString) {
+  try {
+    const date = new Date(isoString);
+    if (isNaN(date.getTime())) return 'Invalid Date';
+    
+    const month = date.getUTCMonth();
+    const day = date.getUTCDate();
+    const year = date.getUTCFullYear();
+    
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    
+    return `${monthNames[month]} ${day}, ${year}`;
+  } catch (e) {
+    return 'Invalid Date';
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   // Ensure user is authenticated
   if (!Auth.requireAuth()) return;
@@ -366,23 +408,9 @@ function displayReport(title, attendance, subtitle = '') {
               let dateStr = 'Invalid Date';
               let timeStr = 'Invalid Time';
               
-              try {
-                const entryTime = new Date(log.entryTime);
-                if (!isNaN(entryTime.getTime())) {
-                  dateStr = entryTime.toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric'
-                  });
-                  timeStr = entryTime.toLocaleTimeString('en-US', { 
-                    hour: '2-digit', 
-                    minute: '2-digit',
-                    hour12: true
-                  });
-                }
-              } catch (e) {
-                console.error('Error parsing date:', log.entryTime, e);
-              }
+              // Format time using Philippine timezone (backend already stores in PH time)
+              dateStr = formatPhilippineDate(log.entryTime);
+              timeStr = formatPhilippineTime(log.entryTime, false);
               
               const statusClass = log.locationValid ? 'status-success' : 'status-error';
               const statusText = log.locationValid ? 'Valid' : 'Invalid';
@@ -466,15 +494,9 @@ function downloadCSV(data, filename) {
     let dateStr = 'Invalid Date';
     let timeStr = 'Invalid Time';
     
-    try {
-      const entryTime = new Date(log.entryTime);
-      if (!isNaN(entryTime.getTime())) {
-        dateStr = entryTime.toLocaleDateString('en-US');
-        timeStr = entryTime.toLocaleTimeString('en-US');
-      }
-    } catch (e) {
-      console.error('Error parsing date for CSV:', log.entryTime, e);
-    }
+    // Format time using Philippine timezone (backend already stores in PH time)
+    dateStr = formatPhilippineDate(log.entryTime);
+    timeStr = formatPhilippineTime(log.entryTime, true);
     
     const statusText = log.locationValid ? 'Valid' : 'Invalid';
     

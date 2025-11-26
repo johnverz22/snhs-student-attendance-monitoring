@@ -83,9 +83,10 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
 
   String _formatDate(String isoTime) {
     try {
+      // Backend already stores time in Philippine timezone (UTC+8)
+      // Do NOT call toLocal() as it would add another 8 hours
       final dateTime = DateTime.parse(isoTime);
-      final localTime = dateTime.toLocal();
-      return DateFormat('MMM dd, yyyy').format(localTime);
+      return DateFormat('MMM dd, yyyy').format(dateTime);
     } catch (e) {
       return isoTime;
     }
@@ -93,9 +94,10 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
 
   String _formatTime(String isoTime) {
     try {
+      // Backend already stores time in Philippine timezone (UTC+8)
+      // Do NOT call toLocal() as it would add another 8 hours
       final dateTime = DateTime.parse(isoTime);
-      final localTime = dateTime.toLocal();
-      return DateFormat('hh:mm a').format(localTime);
+      return DateFormat('hh:mm a').format(dateTime);
     } catch (e) {
       return isoTime;
     }

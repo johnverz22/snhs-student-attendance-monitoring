@@ -7,6 +7,43 @@ let currentFilters = {};
 let allLogs = [];
 let filteredLogs = [];
 
+/**
+ * Format time from backend (already in Philippine time)
+ * Backend stores time in Asia/Manila timezone, so we display as-is
+ * without converting to local timezone
+ */
+function formatPhilippineTime(isoString) {
+  try {
+    const date = new Date(isoString);
+    if (isNaN(date.getTime())) {
+      return { date: 'Invalid Date', time: 'Invalid Time' };
+    }
+    
+    // Extract components directly without timezone conversion
+    const year = date.getUTCFullYear();
+    const month = date.getUTCMonth();
+    const day = date.getUTCDate();
+    const hours = date.getUTCHours();
+    const minutes = date.getUTCMinutes();
+    const seconds = date.getUTCSeconds();
+    
+    // Format date
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const dateStr = `${monthNames[month]} ${day}, ${year}`;
+    
+    // Format time (12-hour format)
+    const hour12 = hours % 12 || 12;
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const timeStr = `${hour12.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')} ${ampm}`;
+    
+    return { date: dateStr, time: timeStr };
+  } catch (e) {
+    console.error('Error formatting time:', isoString, e);
+    return { date: 'Invalid Date', time: 'Invalid Time' };
+  }
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   // Ensure user is authenticated
   if (!Auth.requireAuth()) return;
@@ -239,27 +276,8 @@ function displayLogs() {
   
   // Render table rows
   tbody.innerHTML = paginatedLogs.map(log => {
-    let dateStr = 'Invalid Date';
-    let timeStr = 'Invalid Time';
-    
-    try {
-      const entryTime = new Date(log.entryTime);
-      if (!isNaN(entryTime.getTime())) {
-        dateStr = entryTime.toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric'
-        });
-        timeStr = entryTime.toLocaleTimeString('en-US', { 
-          hour: '2-digit', 
-          minute: '2-digit',
-          second: '2-digit',
-          hour12: true
-        });
-      }
-    } catch (e) {
-      console.error('Error parsing date:', log.entryTime, e);
-    }
+    // Format time using Philippine timezone (backend already stores in PH time)
+    const { date: dateStr, time: timeStr } = formatPhilippineTime(log.entryTime);
     
     const statusClass = log.locationValid 
       ? 'bg-green-100 text-green-800' 

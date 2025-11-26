@@ -476,9 +476,10 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
 
   String _formatTime(String isoTime) {
     try {
+      // Backend already stores time in Philippine timezone (UTC+8)
+      // Do NOT call toLocal() as it would add another 8 hours
       final dateTime = DateTime.parse(isoTime);
-      final localTime = dateTime.toLocal();
-      return '${localTime.hour.toString().padLeft(2, '0')}:${localTime.minute.toString().padLeft(2, '0')}';
+      return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
     } catch (e) {
       return isoTime;
     }

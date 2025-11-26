@@ -2,6 +2,51 @@
  * Dashboard Module - Handles dashboard functionality
  */
 
+/**
+ * Format time from backend (already in Philippine time)
+ */
+function formatPhilippineTime(isoString, includeSeconds = false) {
+  try {
+    const date = new Date(isoString);
+    if (isNaN(date.getTime())) return 'Invalid Time';
+    
+    const hours = date.getUTCHours();
+    const minutes = date.getUTCMinutes();
+    const seconds = date.getUTCSeconds();
+    
+    const hour12 = hours % 12 || 12;
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    
+    if (includeSeconds) {
+      return `${hour12.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')} ${ampm}`;
+    }
+    return `${hour12.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+  } catch (e) {
+    return 'Invalid Time';
+  }
+}
+
+function formatPhilippineDate(isoString, format = 'short') {
+  try {
+    const date = new Date(isoString);
+    if (isNaN(date.getTime())) return 'Invalid Date';
+    
+    const month = date.getUTCMonth();
+    const day = date.getUTCDate();
+    const year = date.getUTCFullYear();
+    
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+                        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    
+    if (format === 'short') {
+      return `${monthNames[month]} ${day}`;
+    }
+    return `${monthNames[month]} ${day}, ${year}`;
+  } catch (e) {
+    return 'Invalid Date';
+  }
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   // Ensure user is authenticated
   if (!Auth.requireAuth()) return;
@@ -99,16 +144,9 @@ async function loadRecentAttendance() {
         tbody.innerHTML = '<tr><td colspan="5" class="px-4 py-8 text-center text-gray-500">No attendance records yet</td></tr>';
       } else {
         tbody.innerHTML = logs.map(log => {
-          const entryTime = new Date(log.entryTime);
-          const timeStr = entryTime.toLocaleTimeString('en-US', { 
-            hour: '2-digit', 
-            minute: '2-digit',
-            hour12: true
-          });
-          const dateStr = entryTime.toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric'
-          });
+          // Format time using Philippine timezone (backend already stores in PH time)
+          const timeStr = formatPhilippineTime(log.entryTime);
+          const dateStr = formatPhilippineDate(log.entryTime, 'short');
           
           const statusClass = log.locationValid 
             ? 'bg-green-100 text-green-800' 
