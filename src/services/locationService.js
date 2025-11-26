@@ -124,29 +124,6 @@ class LocationService {
         throw new Error('Radius must be greater than 0');
       }
 
-// FIXED VERSION - Replace lines 111-177 in src/services/locationService.js
-
-  /**
-   * Update school configuration
-   * @param {Object} configData - New configuration data
-   * @returns {Object} Updated configuration
-   */
-  async updateSchoolConfig(configData) {
-    try {
-            
-      // Validate input
-      if (configData.latitude !== undefined && (configData.latitude < -90 || configData.latitude > 90)) {
-        throw new Error('Latitude must be between -90 and 90');
-      }
-      
-      if (configData.longitude !== undefined && (configData.longitude < -180 || configData.longitude > 180)) {
-        throw new Error('Longitude must be between -180 and 180');
-      }
-      
-      if (configData.radius_meters !== undefined && configData.radius_meters <= 0) {
-        throw new Error('Radius must be greater than 0');
-      }
-
       // Build update query dynamically with PostgreSQL placeholders
       const updateFields = [];
       const values = [];
