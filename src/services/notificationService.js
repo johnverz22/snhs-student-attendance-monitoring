@@ -101,7 +101,8 @@ class NotificationService {
       // Insert new token
       const result = await execute(`
         INSERT INTO push_tokens (parent_id, device_token, platform, is_active)
-        VALUES ($1, $2, $3, 1)
+        VALUES ($1, $2, $3, TRUE)
+        RETURNING id
       `, [parentId, deviceToken, platform]);
 
       console.log(`[${new Date().toISOString()}] Registered push token for parent ${parentId}, platform ${platform}`);
@@ -109,7 +110,7 @@ class NotificationService {
       return {
         success: true,
         message: 'Device token registered successfully',
-        tokenId: result.lastInsertRowid,
+        tokenId: result.rows[0].id,
       };
     } catch (error) {
       console.error('Error registering device token:', error);
