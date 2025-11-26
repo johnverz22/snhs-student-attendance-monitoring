@@ -34,21 +34,32 @@ class _MainNavigationState extends State<MainNavigation> {
         listen: false,
       );
 
-      // Initialize Pushy SDK
+      // Initialize Firebase Messaging
+      debugPrint('🔔 Initializing notification service...');
       await notificationService.initialize();
+      debugPrint('✅ Notification service initialized');
 
       // Register device token with backend
       final authService = AuthService();
       final token = await authService.getToken();
 
       if (token != null) {
-        await notificationService.registerDeviceToken(token);
+        debugPrint('🔑 Registering device token with backend...');
+        final success = await notificationService.registerDeviceToken(token);
+        if (success) {
+          debugPrint('✅ Device token registered successfully');
+        } else {
+          debugPrint('❌ Failed to register device token');
+        }
+      } else {
+        debugPrint('⚠️  No auth token available for device token registration');
       }
 
       _notificationInitialized = true;
-    } catch (e) {
-      // Silently fail - notifications are not critical
-      debugPrint('Error initializing notifications: $e');
+    } catch (e, stackTrace) {
+      // Log error details for debugging
+      debugPrint('❌ Error initializing notifications: $e');
+      debugPrint('Stack trace: $stackTrace');
       // Mark as initialized to prevent repeated attempts
       _notificationInitialized = true;
     }

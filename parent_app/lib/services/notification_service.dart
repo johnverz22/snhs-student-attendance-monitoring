@@ -52,11 +52,21 @@ class NotificationService extends ChangeNotifier {
       }
 
       // Get FCM token
+      debugPrint('📱 Requesting FCM token from Firebase...');
       _deviceToken = await _firebaseMessaging.getToken();
-      debugPrint('FCM device token: $_deviceToken');
 
       if (_deviceToken != null) {
+        debugPrint(
+          '✅ FCM device token received: ${_deviceToken!.substring(0, 50)}...',
+        );
         await _saveDeviceToken(_deviceToken!);
+      } else {
+        debugPrint(
+          '❌ FCM token is null! Firebase might not be configured properly.',
+        );
+        debugPrint(
+          '   Check: google-services.json (Android) or GoogleService-Info.plist (iOS)',
+        );
       }
 
       // Listen for token refresh
