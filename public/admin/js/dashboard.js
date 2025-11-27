@@ -10,9 +10,9 @@ function formatPhilippineTime(isoString, includeSeconds = false) {
     const date = new Date(isoString);
     if (isNaN(date.getTime())) return 'Invalid Time';
     
-    const hours = date.getUTCHours();
-    const minutes = date.getUTCMinutes();
-    const seconds = date.getUTCSeconds();
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const seconds = date.getSeconds();
     
     const hour12 = hours % 12 || 12;
     const ampm = hours >= 12 ? 'PM' : 'AM';
@@ -31,9 +31,9 @@ function formatPhilippineDate(isoString, format = 'short') {
     const date = new Date(isoString);
     if (isNaN(date.getTime())) return 'Invalid Date';
     
-    const month = date.getUTCMonth();
-    const day = date.getUTCDate();
-    const year = date.getUTCFullYear();
+    const month = date.getMonth();
+    const day = date.getDate();
+    const year = date.getFullYear();
     
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
                         'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];

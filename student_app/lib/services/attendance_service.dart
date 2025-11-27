@@ -175,14 +175,13 @@ class AttendanceService {
         final data = jsonDecode(response.body);
 
         if (data['success'] == true && data['data'] != null) {
-          final List<dynamic> entries = data['data'];
+          final List<dynamic> entries = data['data']['logs'];
           final attendanceList = entries
               .map((entry) => AttendanceEntry.fromJson(entry))
               .toList();
 
           // Cache the results
           await _cacheAttendanceEntries(attendanceList);
-
           return attendanceList;
         }
       }

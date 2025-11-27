@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:geolocator/geolocator.dart';
 import '../services/qr_scanner_service.dart';
@@ -479,7 +480,8 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
       // Backend already stores time in Philippine timezone (UTC+8)
       // Do NOT call toLocal() as it would add another 8 hours
       final dateTime = DateTime.parse(isoTime);
-      return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
+      return DateFormat('hh:mm a').format(dateTime);
+      //return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
     } catch (e) {
       return isoTime;
     }
