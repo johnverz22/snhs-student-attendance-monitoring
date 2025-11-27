@@ -2,22 +2,18 @@
   "version": 2,
   "builds": [
     {
-      "functions": {
-        "api/**/*.js": {
-          "runtime": "nodejs18.x"
-        }
-      }
+      "src": "index.js",
+      "use": "@vercel/node"
     }
-
   ],
   "routes": [
     {
-      "source": "/admin/:match*",
-      "destination": "/admin/:match*"
+      "src": "/admin/(.*)",
+      "dest": "/public/admin/$1"
     },
     {
-      "source": "/(.*)",
-      "destination": "/api/index.js"
+      "src": "/(.*)",
+      "dest": "api/index.js"
     }
   ],
   "env": {
