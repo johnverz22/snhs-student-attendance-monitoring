@@ -5,7 +5,7 @@ import '../services/attendance_service.dart';
 import '../models/attendance_record.dart';
 import 'attendance_history_screen.dart';
 import 'manage_students_screen.dart';
-import 'test_fcm_screen.dart';
+//import 'test_fcm_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   final bool showAppBar;
@@ -18,21 +18,21 @@ class HomeScreen extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sto. Rosario National High School'),
-        actions: [
-          // Test FCM button
-          IconButton(
-            icon: const Icon(Icons.bug_report),
-            tooltip: 'Test FCM',
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => const TestFCMScreen()),
-              );
-            },
-          ),
-        ],
-      ),
+      // appBar:  AppBar(
+      //   title: const Text('Sto. Rosario National High School'),
+      //   actions: [
+      //     // Test FCM button
+      //     IconButton(
+      //       icon: const Icon(Icons.bug_report),
+      //       tooltip: 'Test FCM',
+      //       onPressed: () {
+      //         Navigator.of(context).push(
+      //           MaterialPageRoute(builder: (context) => const TestFCMScreen()),
+      //         );
+      //       },
+      //     ),
+      //   ],
+      // ),
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () => _handleRefresh(context, authProvider),

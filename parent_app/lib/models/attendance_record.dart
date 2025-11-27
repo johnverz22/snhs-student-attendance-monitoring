@@ -20,11 +20,16 @@ class AttendanceRecord {
   });
 
   factory AttendanceRecord.fromJson(Map<String, dynamic> json) {
+    // Backend already stores time in Philippine timezone (UTC+8)
+    // Parse as UTC to prevent double conversion to local time
+    final timeString = json['entry_time'] ?? json['entryTime'];
+    final entryTime = DateTime.parse(timeString).toUtc();
+
     return AttendanceRecord(
       id: json['id'],
       studentId: json['student_id'] ?? json['studentId'] ?? 0,
       studentName: json['student_name'] ?? json['studentName'] ?? '',
-      entryTime: DateTime.parse(json['entry_time'] ?? json['entryTime']),
+      entryTime: entryTime,
       gateName: json['gate_name'] ?? json['gateName'] ?? 'Unknown Gate',
       locationValid:
           json['location_valid'] == 1 ||

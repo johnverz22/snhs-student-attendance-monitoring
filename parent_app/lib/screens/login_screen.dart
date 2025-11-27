@@ -113,7 +113,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   // School Name
                   Text(
-                    'Sto. Rosario National High School',
+                    'SRNHS Track',
                     style: theme.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: theme.colorScheme.primary,
@@ -133,7 +133,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 4),
 
                   Text(
-                    'Monitor your child\'s attendance',
+                    'Track your child\'s attendance',
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
