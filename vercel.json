@@ -12,12 +12,12 @@
   ],
   "routes": [
     {
-      "src": "/admin/(.*)",
-      "dest": "/public/admin/$1"
+      "source": "/admin/:match*",
+      "destination": "/admin/:match*"
     },
     {
-      "src": "/(.*)",
-      "dest": "api/index.js"
+      "source": "/(.*)",
+      "destination": "/api/index.js"
     }
   ],
   "env": {

@@ -35,3 +35,5 @@ coverage/
 dist/
 build/
 INSERT_ADMIN.sql
+.vercel
+.env*.local
