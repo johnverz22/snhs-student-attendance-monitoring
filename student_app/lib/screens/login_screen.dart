@@ -152,7 +152,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   // School Name
                   Text(
-                    'Sto. Rosario National High School',
+                    'SRNHS Attend',
                     style: theme.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: theme.colorScheme.primary,
@@ -163,10 +163,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   // Title
                   Text(
-                    'Student Attendance',
+                    'Sto. Rosario National High School',
                     style: theme.textTheme.titleMedium?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
+                      fontSize: 16,
                     ),
+
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 4),

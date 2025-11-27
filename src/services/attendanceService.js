@@ -359,9 +359,14 @@ class AttendanceService {
 
       // Step 6: Send push notification to parent(s)
       // Run asynchronously without blocking the response
-      this.sendAttendanceNotification(studentId, attendanceResult.data).catch(error => {
-        console.error('Failed to send attendance notification:', error);
-      });
+      console.log(`[${new Date().toISOString()}] Triggering attendance notification for student ${studentId}...`);
+      this.sendAttendanceNotification(studentId, attendanceResult.data)
+        .then(result => {
+          console.log(`[${new Date().toISOString()}] Notification result:`, result);
+        })
+        .catch(error => {
+          console.error(`[${new Date().toISOString()}] Failed to send attendance notification:`, error);
+        });
 
       return attendanceResult;
     } catch (error) {

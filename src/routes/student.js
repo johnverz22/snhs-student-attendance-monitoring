@@ -147,6 +147,9 @@ router.post(
       const { qrCode, latitude, longitude } = req.body;
       const studentId = req.user.id;
 
+      console.log(`[${new Date().toISOString()}] Attendance scan request received for student ${studentId}`);
+      console.log(`[${new Date().toISOString()}] QR Code: ${qrCode}, Location: ${latitude}, ${longitude}`);
+
       // Process attendance scan
       const result = await attendanceService.processScan(
         studentId,
@@ -155,12 +158,15 @@ router.post(
         longitude
       );
 
+      console.log(`[${new Date().toISOString()}] Attendance scan result:`, JSON.stringify(result));
+
       if (!result.success) {
         return res.status(400).json(result);
       }
 
       res.json(result);
     } catch (error) {
+      console.error(`[${new Date().toISOString()}] Error in attendance scan:`, error);
       next(error);
     }
   }

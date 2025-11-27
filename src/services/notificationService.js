@@ -98,9 +98,10 @@ class NotificationService {
         };
       }
 
+
       // Insert new token
       const result = await execute(`
-        INSERT INTO push_tokens (parent_id, device_token, platform, is_active)
+        INSERT INTO push_tokens (parent_id, device_token, platform)
         VALUES ($1, $2, $3)
         RETURNING id
       `, [parentId, deviceToken, platform]);
@@ -282,12 +283,16 @@ class NotificationService {
    */
   async sendAttendanceNotification(studentId, attendanceData) {
     try {
+      console.log(`[${new Date().toISOString()}] sendAttendanceNotification called for student ${studentId}`);
+      console.log(`[${new Date().toISOString()}] Attendance data:`, JSON.stringify(attendanceData));
       
       // Get parent IDs linked to this student
       const parentLinks = await queryAll(`
         SELECT parent_id FROM parent_student_links
         WHERE student_id = $1
       `, [studentId]);
+      
+      console.log(`[${new Date().toISOString()}] Found ${parentLinks.length} parent link(s) for student ${studentId}`);
 
       if (parentLinks.length === 0) {
         console.log(`[${new Date().toISOString()}] No parents linked to student ${studentId}, skipping notification`);

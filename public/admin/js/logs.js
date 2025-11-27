@@ -20,12 +20,12 @@ function formatPhilippineTime(isoString) {
     }
     
     // Extract components directly without timezone conversion
-    const year = date.getUTCFullYear();
-    const month = date.getUTCMonth();
-    const day = date.getUTCDate();
-    const hours = date.getUTCHours();
-    const minutes = date.getUTCMinutes();
-    const seconds = date.getUTCSeconds();
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const day = date.getDate();
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const seconds = date.getSeconds();
     
     // Format date
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 

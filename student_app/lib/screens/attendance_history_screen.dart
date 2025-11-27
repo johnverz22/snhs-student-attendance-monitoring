@@ -30,7 +30,6 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
 
     try {
       final entries = await _attendanceService.getAttendanceHistory(limit: 50);
-
       if (mounted) {
         setState(() {
           _entries = entries;
@@ -61,22 +60,46 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
         });
 
         // Show success feedback
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   const SnackBar(
+        //     content: Text('Attendance history refreshed'),
+        //     duration: Duration(seconds: 2),
+        //     backgroundColor: Colors.green,
+        //   ),
+        // );
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Attendance history refreshed'),
-            duration: Duration(seconds: 2),
+          SnackBar(
+            content: const Text('Attendance history refreshed'),
+            duration: const Duration(seconds: 2),
             backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            margin: const EdgeInsets.only(bottom: 20, left: 10, right: 10),
           ),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to refresh attendance history'),
+          SnackBar(
+            content: const Text('Failed to refresh attendance history'),
+            duration: const Duration(seconds: 2),
             backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            margin: const EdgeInsets.only(bottom: 80, left: 10, right: 10),
           ),
         );
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   const SnackBar(
+        //     content: Text('Failed to refresh attendance history'),
+        //     backgroundColor: Colors.red,
+        //   ),
+        // );
       }
     }
   }
@@ -84,8 +107,8 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
   String _formatDate(String isoTime) {
     try {
       // Backend already stores time in Philippine timezone (UTC+8)
-      // Do NOT call toLocal() as it would add another 8 hours
-      final dateTime = DateTime.parse(isoTime);
+      // Parse as UTC to prevent automatic local conversion
+      final dateTime = DateTime.parse(isoTime).toUtc();
       return DateFormat('MMM dd, yyyy').format(dateTime);
     } catch (e) {
       return isoTime;
@@ -95,8 +118,8 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
   String _formatTime(String isoTime) {
     try {
       // Backend already stores time in Philippine timezone (UTC+8)
-      // Do NOT call toLocal() as it would add another 8 hours
-      final dateTime = DateTime.parse(isoTime);
+      // Parse as UTC to prevent automatic local conversion
+      final dateTime = DateTime.parse(isoTime).toLocal();
       return DateFormat('hh:mm a').format(dateTime);
     } catch (e) {
       return isoTime;
