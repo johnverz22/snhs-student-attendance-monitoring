@@ -360,7 +360,6 @@ class AttendanceService {
 
       // Step 6: Send push notification to parent(s)
       // Run asynchronously without blocking the response
-      const { getCurrentLogTimestamp } = require('../utils/timezone');
       console.log(`[${getCurrentLogTimestamp()}] Triggering attendance notification for student ${studentId}...`);
       this.sendAttendanceNotification(studentId, attendanceResult.data)
         .then(result => {

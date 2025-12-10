@@ -13,7 +13,7 @@ class ApiConfig {
   //     'http://192.168.100.83:3000/api'; // Physical Device
 
   static const String baseUrl =
-      'https://snhs-student-attendance-monitoring-glw2kktxl.vercel.app/api';
+      'https://srnhs-attendance-lcl4bumj1-johnverz22s-projects.vercel.app/api';
 
   // Authentication endpoints
   static const String parentRegister = '/auth/parent/register';
