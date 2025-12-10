@@ -343,7 +343,8 @@ class AttendanceService {
       `, [result.rows[0].id]);
 
       // Log successful attendance
-      console.log(`[${new Date().toISOString()}] Attendance logged: student=${studentId}, gate=${qrValidation.qrCodeData.gateName}`);
+      const { getCurrentLogTimestamp } = require('../utils/timezone');
+      console.log(`[${getCurrentLogTimestamp()}] Attendance logged: student=${studentId}, gate=${qrValidation.qrCodeData.gateName}`);
 
       const attendanceResult = {
         success: true,
@@ -359,13 +360,14 @@ class AttendanceService {
 
       // Step 6: Send push notification to parent(s)
       // Run asynchronously without blocking the response
-      console.log(`[${new Date().toISOString()}] Triggering attendance notification for student ${studentId}...`);
+      const { getCurrentLogTimestamp } = require('../utils/timezone');
+      console.log(`[${getCurrentLogTimestamp()}] Triggering attendance notification for student ${studentId}...`);
       this.sendAttendanceNotification(studentId, attendanceResult.data)
         .then(result => {
-          console.log(`[${new Date().toISOString()}] Notification result:`, result);
+          console.log(`[${getCurrentLogTimestamp()}] Notification result:`, result);
         })
         .catch(error => {
-          console.error(`[${new Date().toISOString()}] Failed to send attendance notification:`, error);
+          console.error(`[${getCurrentLogTimestamp()}] Failed to send attendance notification:`, error);
         });
 
       return attendanceResult;
@@ -530,8 +532,8 @@ class AttendanceService {
    * @param {string} reason
    */
   logValidation(qrCode, isValid, reason = '') {
-    const timestamp = new Date().toISOString();
-    console.log(`[${timestamp}] QR validation: code=${qrCode}, valid=${isValid}, reason=${reason}`);
+    const { getCurrentLogTimestamp } = require('../utils/timezone');
+    console.log(`[${getCurrentLogTimestamp()}] QR validation: code=${qrCode}, valid=${isValid}, reason=${reason}`);
   }
 }
 

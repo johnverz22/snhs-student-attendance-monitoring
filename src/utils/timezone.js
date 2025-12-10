@@ -41,9 +41,9 @@ function getTimezoneOffset(timezone) {
 }
 
 /**
- * Get current timestamp in the configured timezone
- * Returns ISO 8601 format string that PostgreSQL can store
- * @returns {Promise<string>} Timestamp in configured timezone (ISO 8601)
+ * Get current timestamp in the configured timezone for database storage
+ * Returns "naive" timestamp (no timezone info) in local timezone
+ * @returns {Promise<string>} Timestamp in configured timezone for DB storage
  */
 async function getCurrentTimestamp() {
   const timezone = await getConfiguredTimezone();
@@ -52,53 +52,58 @@ async function getCurrentTimestamp() {
   // Get current UTC time
   const now = new Date();
   
-  // Add timezone offset
+  // Calculate local time in configured timezone
   const localTime = new Date(now.getTime() + (offsetHours * 60 * 60 * 1000));
   
-  // Return ISO 8601 format for PostgreSQL
-  return localTime.toISOString();
+  // Return as "naive" timestamp (no Z suffix) for consistent storage
+  return localTime.toISOString().replace('Z', '');
 }
 
 /**
- * Convert UTC timestamp from database to configured timezone
- * @param {string} utcTimestamp - UTC timestamp from database
- * @returns {Promise<string>} Timestamp in configured timezone
+ * Get current timestamp for logging (always UTC)
+ * @returns {string} UTC timestamp for consistent logging
  */
-async function convertToLocalTime(utcTimestamp) {
-  if (!utcTimestamp) return null;
+function getCurrentLogTimestamp() {
+  return new Date().toISOString();
+}
+
+/**
+ * Convert database timestamp to display format in configured timezone
+ * Database stores "naive" timestamps (already in local timezone)
+ * @param {string} dbTimestamp - Timestamp from database (naive, in local timezone)
+ * @returns {Promise<string>} Formatted timestamp for display
+ */
+async function convertToLocalTime(dbTimestamp) {
+  if (!dbTimestamp) return null;
   
-  const timezone = await getConfiguredTimezone();
-  const offsetHours = getTimezoneOffset(timezone);
+  // Database timestamp is already in configured timezone
+  // Just parse it as-is (don't add Z to avoid UTC conversion)
+  const localDate = new Date(dbTimestamp);
   
-  // Parse the UTC timestamp
-  const utcDate = new Date(utcTimestamp + 'Z'); // Add Z to indicate UTC
-  
-  // Add timezone offset
-  const localDate = new Date(utcDate.getTime() + (offsetHours * 60 * 60 * 1000));
-  
-  // Return ISO 8601 format
+  // Return ISO 8601 format for consistency
   return localDate.toISOString();
 }
 
 /**
- * Convert local timestamp to UTC for database storage
- * @param {string} localTimestamp - Timestamp in configured timezone
- * @returns {Promise<string>} UTC timestamp for database
+ * Convert client timestamp to database format
+ * Client sends UTC timestamp, we store it as local time
+ * @param {string} clientTimestamp - UTC timestamp from client
+ * @returns {Promise<string>} Timestamp for database storage (in local timezone)
  */
-async function convertToUTC(localTimestamp) {
-  if (!localTimestamp) return null;
+async function convertToLocalStorage(clientTimestamp) {
+  if (!clientTimestamp) return null;
   
   const timezone = await getConfiguredTimezone();
   const offsetHours = getTimezoneOffset(timezone);
   
-  // Parse the local timestamp (without timezone indicator)
-  const localDate = new Date(localTimestamp);
+  // Parse the UTC timestamp from client
+  const utcDate = new Date(clientTimestamp);
   
-  // Subtract timezone offset to get UTC
-  const utcDate = new Date(localDate.getTime() - (offsetHours * 60 * 60 * 1000));
+  // Convert to local timezone for storage
+  const localDate = new Date(utcDate.getTime() + (offsetHours * 60 * 60 * 1000));
   
-  // Return ISO 8601 format
-  return utcDate.toISOString();
+  // Return without Z suffix (naive timestamp)
+  return localDate.toISOString().replace('Z', '');
 }
 
 /**
@@ -130,7 +135,8 @@ module.exports = {
   getConfiguredTimezone,
   getTimezoneOffset,
   getCurrentTimestamp,
+  getCurrentLogTimestamp,
   convertToLocalTime,
-  convertToUTC,
+  convertToLocalStorage,
   formatTimestamp,
 };

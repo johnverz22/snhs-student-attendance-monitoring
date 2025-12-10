@@ -26,7 +26,8 @@ class NotificationService {
         if (process.env.FIREBASE_SERVICE_ACCOUNT) {
           try {
             serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-            console.log(`[${new Date().toISOString()}] Using Firebase credentials from environment variable`);
+            const { getCurrentLogTimestamp } = require('../utils/timezone');
+            console.log(`[${getCurrentLogTimestamp()}] Using Firebase credentials from environment variable`);
           } catch (parseError) {
             console.error('Error parsing FIREBASE_SERVICE_ACCOUNT environment variable:', parseError);
             console.warn('Firebase service account not configured, push notifications will be disabled');
@@ -39,7 +40,7 @@ class NotificationService {
             const path = require('path');
             const serviceAccountPath = path.resolve(process.cwd(), config.firebase.serviceAccountPath);
             serviceAccount = require(serviceAccountPath);
-            console.log(`[${new Date().toISOString()}] Using Firebase credentials from file: ${config.firebase.serviceAccountPath}`);
+            console.log(`[${getCurrentLogTimestamp()}] Using Firebase credentials from file: ${config.firebase.serviceAccountPath}`);
           } catch (fileError) {
             console.error('Error loading Firebase service account file:', fileError);
             console.warn('Firebase service account not configured, push notifications will be disabled');
@@ -55,7 +56,7 @@ class NotificationService {
         });
         
         this.initialized = true;
-        console.log(`[${new Date().toISOString()}] Firebase Admin SDK initialized successfully`);
+        console.log(`[${getCurrentLogTimestamp()}] Firebase Admin SDK initialized successfully`);
       }
     } catch (error) {
       console.error('Error initializing Firebase Admin SDK:', error);
@@ -88,7 +89,7 @@ class NotificationService {
             WHERE id = $1
           `, [existing.id]);
 
-          console.log(`[${new Date().toISOString()}] Reactivated push token for parent ${parentId}`);
+          console.log(`[${getCurrentLogTimestamp()}] Reactivated push token for parent ${parentId}`);
         }
 
         return {
@@ -106,7 +107,7 @@ class NotificationService {
         RETURNING id
       `, [parentId, deviceToken, platform]);
 
-      console.log(`[${new Date().toISOString()}] Registered push token for parent ${parentId}, platform ${platform}`);
+      console.log(`[${getCurrentLogTimestamp()}] Registered push token for parent ${parentId}, platform ${platform}`);
 
       return {
         success: true,
@@ -141,7 +142,7 @@ class NotificationService {
         };
       }
 
-      console.log(`[${new Date().toISOString()}] Unregistered push token for parent ${parentId}`);
+      console.log(`[${getCurrentLogTimestamp()}] Unregistered push token for parent ${parentId}`);
 
       return {
         success: true,
@@ -228,7 +229,7 @@ class NotificationService {
 
       const response = await admin.messaging().send(message);
 
-      console.log(`[${new Date().toISOString()}] Push notification sent successfully to ${deviceToken}`);
+      console.log(`[${getCurrentLogTimestamp()}] Push notification sent successfully to ${deviceToken}`);
 
       return {
         success: true,
@@ -264,7 +265,7 @@ class NotificationService {
     const result = await this.sendPushNotification(deviceToken, notification, data);
 
     if (!result.success && retryCount < this.maxRetries) {
-      console.log(`[${new Date().toISOString()}] Retrying notification (attempt ${retryCount + 1}/${this.maxRetries})...`);
+      console.log(`[${getCurrentLogTimestamp()}] Retrying notification (attempt ${retryCount + 1}/${this.maxRetries})...`);
       
       // Wait before retrying (exponential backoff)
       await this.sleep(this.retryDelay * Math.pow(2, retryCount));
@@ -283,8 +284,8 @@ class NotificationService {
    */
   async sendAttendanceNotification(studentId, attendanceData) {
     try {
-      console.log(`[${new Date().toISOString()}] sendAttendanceNotification called for student ${studentId}`);
-      console.log(`[${new Date().toISOString()}] Attendance data:`, JSON.stringify(attendanceData));
+      console.log(`[${getCurrentLogTimestamp()}] sendAttendanceNotification called for student ${studentId}`);
+      console.log(`[${getCurrentLogTimestamp()}] Attendance data:`, JSON.stringify(attendanceData));
       
       // Get parent IDs linked to this student
       const parentLinks = await queryAll(`
@@ -292,10 +293,10 @@ class NotificationService {
         WHERE student_id = $1
       `, [studentId]);
       
-      console.log(`[${new Date().toISOString()}] Found ${parentLinks.length} parent link(s) for student ${studentId}`);
+      console.log(`[${getCurrentLogTimestamp()}] Found ${parentLinks.length} parent link(s) for student ${studentId}`);
 
       if (parentLinks.length === 0) {
-        console.log(`[${new Date().toISOString()}] No parents linked to student ${studentId}, skipping notification`);
+        console.log(`[${getCurrentLogTimestamp()}] No parents linked to student ${studentId}, skipping notification`);
         return {
           success: true,
           message: 'No parents to notify',
@@ -312,7 +313,7 @@ class NotificationService {
         const tokens = await this.getParentDeviceTokens(link.parent_id);
 
         if (tokens.length === 0) {
-          console.log(`[${new Date().toISOString()}] No active device tokens for parent ${link.parent_id}`);
+          console.log(`[${getCurrentLogTimestamp()}] No active device tokens for parent ${link.parent_id}`);
           continue;
         }
 
@@ -359,7 +360,7 @@ class NotificationService {
         }
       }
 
-      console.log(`[${new Date().toISOString()}] Attendance notifications: ${successCount} sent, ${failureCount} failed`);
+      console.log(`[${getCurrentLogTimestamp()}] Attendance notifications: ${successCount} sent, ${failureCount} failed`);
 
       return {
         success: true,
