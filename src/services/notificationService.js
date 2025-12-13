@@ -2,6 +2,7 @@ const admin = require('firebase-admin');
 const config = require('../config');
 const dbManager = require('../models/database');
 const { queryOne, queryAll, execute, transaction } = require('../utils/dbHelpers');
+const { getCurrentLogTimestamp } = require('../utils/timezone');
 
 /**
  * NotificationService handles push notifications via Firebase Cloud Messaging
@@ -26,7 +27,6 @@ class NotificationService {
         if (process.env.FIREBASE_SERVICE_ACCOUNT) {
           try {
             serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-            const { getCurrentLogTimestamp } = require('../utils/timezone');
             console.log(`[${getCurrentLogTimestamp()}] Using Firebase credentials from environment variable`);
           } catch (parseError) {
             console.error('Error parsing FIREBASE_SERVICE_ACCOUNT environment variable:', parseError);
